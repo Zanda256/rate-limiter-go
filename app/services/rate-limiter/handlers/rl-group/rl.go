@@ -1,8 +1,9 @@
-package rl_group
+package rlgroup
 
 import (
+	"context"
 	"github.com/Zanda256/rate-limiter-go/foundation/logger"
-	"github.com/julienschmidt/httprouter"
+	"github.com/Zanda256/rate-limiter-go/foundation/web"
 	"net/http"
 )
 
@@ -19,10 +20,10 @@ func New(log *logger.Logger) *Handlers {
 }
 
 // type Handle func(http.ResponseWriter, *http.Request, httprouter.Params)
-func (h *Handlers) Limited(http.ResponseWriter, *http.Request, httprouter.Params) {
-
+func (h *Handlers) Limited(ctx context.Context, rw http.ResponseWriter, r *http.Request) error {
+	return web.Respond(context.Background(), rw, "Limited, don't over use me!", http.StatusOK)
 }
 
-func (h *Handlers) UnLimited(http.ResponseWriter, *http.Request, httprouter.Params) {
-
+func (h *Handlers) UnLimited(ctx context.Context, rw http.ResponseWriter, r *http.Request) error {
+	return web.Respond(context.Background(), rw, "Unlimited! Let's Go!", http.StatusOK)
 }
