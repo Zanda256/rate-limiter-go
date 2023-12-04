@@ -19,6 +19,15 @@ type App struct {
 	mw       []Middleware
 }
 
+// NewApp creates an App value that handle a set of routes for the application.
+func NewApp(shutdown chan os.Signal, mw ...Middleware) *App {
+	return &App{
+		Router:   httprouter.New(),
+		shutdown: shutdown,
+		mw:       mw,
+	}
+}
+
 // SignalShutdown is used to gracefully shut down the app when an integrity
 // issue is identified.
 func (a *App) SignalShutdown() {

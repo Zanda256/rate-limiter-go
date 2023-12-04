@@ -1,9 +1,14 @@
-package rl_group
+package rlgroup
 
 import (
+	"github.com/Zanda256/rate-limiter-go/foundation/logger"
 	"github.com/Zanda256/rate-limiter-go/foundation/web"
 	"net/http"
 )
+
+type Config struct {
+	Log *logger.Logger
+}
 
 func Routes(app *web.App, cfg Config) {
 	const version = "v1"
@@ -13,7 +18,7 @@ func Routes(app *web.App, cfg Config) {
 
 	//usrCore := user.NewCore(cfg.Log, userdb.NewStore(cfg.Log, cfg.DB))
 
-	hdl := New(usrCore, cfg.Auth)
-	app.Handle(http.MethodPost, version, "/limited")
-	app.Handle(http.MethodPost, version, "/unlimited")
+	hdl := New(cfg.Log)
+	app.Handle(http.MethodPost, version, "/limited", hdl.Limited)
+	app.Handle(http.MethodPost, version, "/unlimited", hdl.UnLimited)
 }
