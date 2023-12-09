@@ -6,7 +6,6 @@ import (
 	"github.com/Zanda256/rate-limiter-go/app/services/rate-limiter/handlers"
 	v1 "github.com/Zanda256/rate-limiter-go/business/web/v1"
 	"github.com/Zanda256/rate-limiter-go/foundation/logger"
-	"github.com/Zanda256/service/foundation/web"
 	"net/http"
 	"os"
 	"os/signal"
@@ -26,8 +25,12 @@ func main() {
 		},
 	}
 
+	//traceIDFunc := func(ctx context.Context) string {
+	//	return web.GetTraceID(ctx)
+	//}
 	traceIDFunc := func(ctx context.Context) string {
-		return web.GetTraceID(ctx)
+		//return web.GetTraceID(ctx)
+		return "not_set_up_yet"
 	}
 
 	log = logger.NewWithEvents(os.Stdout, logger.LevelInfo, "SALES-API", traceIDFunc, events)
