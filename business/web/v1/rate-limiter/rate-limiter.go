@@ -20,5 +20,3 @@ var supportedAlgos = map[string]int{
 	"SlidingLog":    SlidingLog,
 	"SlidingWindow": SlidingWindow,
 }
-
-func CheckLimit()
