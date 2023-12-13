@@ -39,19 +39,19 @@ func (rc *RedisCache) StoreValue(ctx context.Context, key string, value any, ttl
 	return nil
 }
 
-func (rc *RedisCache) RetrieveValue(ctx context.Context, key string, value any) (any, error) {
+func (rc *RedisCache) RetrieveValue(ctx context.Context, key string) (any, error) {
 	val, err := rc.Get(ctx, key).Result()
 	if err != nil {
 		return nil, err
 	}
-	return val, nil
 
 	// val2, err := rc.Get(ctx, "key2").Result()
-	// if err == redis.Nil {
-	// 	fmt.Println("key2 does not exist")
-	// } else if err != nil {
-	// 	panic(err)
-	// } else {
-	// 	fmt.Println("key2", val2)
-	// }
+	if err == redis.Nil {
+		return nil, nil
+	} else if err != nil {
+
+	} else {
+		return nil, err
+	}
+	return val, nil
 }
