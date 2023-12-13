@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Zanda256/rate-limiter-go/business/web/v1/ratelimiter"
 	"github.com/Zanda256/rate-limiter-go/foundation/cache"
 	"github.com/Zanda256/rate-limiter-go/foundation/logger"
 )
@@ -39,8 +38,9 @@ func (bc *BucketController) NewBucket(cfg TokenBucketConfig) TokenBucket {
 
 // BucketController manages bucket creation, and state of individual buckets
 type BucketController struct {
-	Store *cache.RedisCache
-	log   *logger.Logger
+	Period, Cap int
+	Store       *cache.RedisCache
+	log         *logger.Logger
 }
 
 type BucketControllerConfig struct {
@@ -52,8 +52,10 @@ type BucketControllerConfig struct {
 
 func NewBucketController(cfg BucketControllerConfig) *BucketController {
 	return &BucketController{
-		Store: cfg.Store,
-		log:   cfg.log,
+		Period: cfg.Period,
+		Cap:    cfg.Capacity,
+		Store:  cfg.Store,
+		log:    cfg.log,
 	}
 }
 
@@ -63,9 +65,9 @@ func (bc *BucketController) Accept(userID string) bool {
 		// If the key isn't present, create a new one
 		if err.Error() == "key not found" { // move to string constatnt later
 			buckt := bc.NewBucket(TokenBucketConfig{
-				Period:   ratelimiter.DefaultRateLimitPeriod,
+				Period:   bc.Period,
 				UserID:   userID,
-				Capacity: ratelimiter.DefaultRateLimitCapacity,
+				Capacity: bc.Cap,
 			})
 			if err = bc.Store.StoreValue(context.Background(), userID, buckt, 30); err != nil {
 				bc.log.Error(context.Background(), fmt.Sprintf("Store bucket value failed: %s", err.Error()))
