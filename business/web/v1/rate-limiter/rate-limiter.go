@@ -1,8 +1,8 @@
 package ratelimiter
 
 import (
+	"github.com/Zanda256/rate-limiter-go/business/data/cache"
 	"github.com/Zanda256/rate-limiter-go/business/web/v1/rate-limiter/tokenbucket"
-	"github.com/Zanda256/rate-limiter-go/foundation/cache"
 	"github.com/Zanda256/rate-limiter-go/foundation/logger"
 )
 
@@ -31,7 +31,7 @@ const (
 )
 
 type Tier struct {
-	algo     string
+	Algo     string
 	Period   int
 	Capacity int
 }
@@ -57,6 +57,7 @@ func NewRateLimiter(cfg RateLimiterConfig) *RateLimiterImpl {
 			}
 			return cfg.Tier.Capacity
 		}(),
+		Log: cfg.Log,
 	})
 	return &RateLimiterImpl{
 		BucketController: t,

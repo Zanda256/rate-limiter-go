@@ -2,7 +2,6 @@ package mid
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	ratelimiter "github.com/Zanda256/rate-limiter-go/business/web/v1/rate-limiter"
@@ -15,10 +14,9 @@ func RateLimit(rlmt *ratelimiter.RateLimiterImpl) web.Middleware {
 		m := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 			// Do what ever you want with the request here
 			q := r.URL.Query()
-			// fmt.Println(q.Get("b"))
 			user := q.Get("user")
 			if !rlmt.CheckUserLimit(user) {
-				return errors.New("limit exceeded")
+				return ratelimiter.NewRateLimitError("limit exceeded") //errors.New("limit exceeded")
 			}
 			// Call h()
 			return h(ctx, w, r)
