@@ -3,10 +3,11 @@ package web
 import (
 	"context"
 	"errors"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"os"
 	"syscall"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 // A Handler is a type that handles a http request within our own little mini
@@ -22,7 +23,10 @@ type App struct {
 // NewApp creates an App value that handle a set of routes for the application.
 func NewApp(shutdown chan os.Signal, mw ...Middleware) *App {
 	return &App{
-		Router:   httprouter.New(),
+		Router: func() *httprouter.Router {
+			r := httprouter.New()
+			return r
+		}(),
 		shutdown: shutdown,
 		mw:       mw,
 	}
@@ -36,7 +40,7 @@ func (a *App) SignalShutdown() {
 
 // Handle sets a handler function for a given HTTP method and path pair
 // to the application server mux.
-func (a *App) Handle(method string, group string, path string, handler Handler, mw ...Middleware) {
+func (a *App) HandlePath(method string, group string, path string, handler Handler, mw ...Middleware) {
 	handler = wrapMiddleware(mw, handler)
 	handler = wrapMiddleware(a.mw, handler)
 
@@ -46,15 +50,18 @@ func (a *App) Handle(method string, group string, path string, handler Handler, 
 // handle sets a handler function for a given HTTP method and path pair
 // to the application server mux.
 func (a *App) handle(method string, group string, path string, handler Handler) {
-	h := func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	h := func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		ctx := context.Background()
 		if err := handler(ctx, w, r); err != nil {
 			if validateShutdown(err) {
 				a.SignalShutdown()
 				return
+			} else {
+				panic(err)
 			}
 		}
 	}
+	// fmt.Printf("\nHandling route : %s\nhandler: %T\n", path, handler)
 
 	finalPath := path
 	if group != "" {

@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/julienschmidt/httprouter v1.3.0
-	github.com/redis/go-redis/v9 v9.3.0
+	github.com/redis/go-redis/v9 v9.4.0
 )
 
 require (
