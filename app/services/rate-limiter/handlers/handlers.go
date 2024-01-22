@@ -15,7 +15,7 @@ func (Routes) Add(app *web.App, apiCfg v1.APIMuxConfig) {
 		TierConfig: map[string]*ratelimiter.Tier{
 			"basic": {
 				Algo:     ratelimiter.TokenBucket,
-				Period:   1,
+				Period:   60,
 				Capacity: 5,
 			},
 		},
