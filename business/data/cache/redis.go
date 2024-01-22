@@ -39,12 +39,12 @@ func NewRedisCache(redisAddress string) *RedisCache {
 //     }
 //     fmt.Println(status)
 
-func (rc *RedisCache) StoreValue(ctx context.Context, key string, value any, ttl int) error {
+func (rc *RedisCache) StoreValue(ctx context.Context, key string, value any, ttl int) (any, error) {
 	err := rc.client.Set(ctx, key, value, time.Minute*time.Duration(ttl)).Err()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return value, nil
 }
 
 func (rc *RedisCache) RetrieveValue(ctx context.Context, key string) (any, error) {
@@ -54,6 +54,6 @@ func (rc *RedisCache) RetrieveValue(ctx context.Context, key string) (any, error
 	} else if err != nil {
 		return nil, err
 	}
-	fmt.Printf("\nbucket in RetrieveValue: %+v\n", val)
+	fmt.Printf("\nbucket in RetrieveValue\nkey: %+v\nvalue: %+v", key, val)
 	return val, nil
 }
