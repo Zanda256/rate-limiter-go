@@ -11,8 +11,6 @@ import (
 	"github.com/Zanda256/rate-limiter-go/foundation/logger"
 )
 
-var ErrKeyNotFound = errors.New("key not found")
-
 const timeFormat = time.RFC3339
 
 // TokenBucketConfig stores configuration for the token bucket
@@ -79,14 +77,14 @@ func NewBucketController(cfg BucketControllerConfig) *BucketController {
 }
 
 func (bc *BucketController) Accept(userID string) bool {
-	v, err := bc.checkBucket(userID)
+	v, err := bc.getBucket(userID)
 	if err != nil {
 		// If the key isn't present, create a new one
-		if errors.Is(err, ErrKeyNotFound) { // move to string constatnt later
+		if errors.Is(err, cache.ErrKeyNotFound) { // move to string constatnt later
 			buckt := bc.NewBucket(TokenBucketConfig{
-				Period:   bc.Period,
+				Period:   bc.Period, // TODO: this should not be a property of the bucket controller
 				UserID:   userID,
-				Capacity: bc.Cap,
+				Capacity: bc.Cap, // TODO: this should not be a property of the bucket controller
 			})
 			if _, err = bc.updateTokens(buckt); err != nil {
 				bc.Log.Error(context.Background(), fmt.Sprintf("updateTokens: %s", err.Error()))
@@ -147,7 +145,7 @@ func (bc *BucketController) Accept(userID string) bool {
 	}
 }
 
-func (bc *BucketController) checkBucket(UserID string) (any, error) {
+func (bc *BucketController) getBucket(UserID string) (any, error) {
 	v, err := bc.Store.RetrieveValue(context.Background(), UserID)
 	if err != nil {
 		bc.Log.Error(context.Background(), "checkbucket: %s", err.Error())
@@ -155,7 +153,7 @@ func (bc *BucketController) checkBucket(UserID string) (any, error) {
 	}
 	if v == nil {
 		bc.Log.Warn(context.Background(), "key not found")
-		return nil, ErrKeyNotFound
+		return nil, cache.ErrKeyNotFound
 	}
 	bc.Log.Info(context.Background(), "bucket in check bucket: %+v", v)
 	return v, nil

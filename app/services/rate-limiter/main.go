@@ -63,10 +63,10 @@ func run(ctx context.Context, log *logger.Logger) error {
 		}
 		Web struct {
 			ReadTimeout     time.Duration // `conf:"default:5s"`
-			WriteTimeout    time.Duration //`conf:"default:10s"`
-			IdleTimeout     time.Duration //`conf:"default:120s"`
-			ShutdownTimeout time.Duration //`conf:"default:20s,mask"`
-			APIHost         string        //`conf:"default:0.0.0.0:3000"`
+			WriteTimeout    time.Duration // `conf:"default:10s"`
+			IdleTimeout     time.Duration // `conf:"default:120s"`
+			ShutdownTimeout time.Duration // `conf:"default:20s,mask"`
+			APIHost         string        // `conf:"default:0.0.0.0:3000"`
 		}
 		RedisConf struct {
 			URL string

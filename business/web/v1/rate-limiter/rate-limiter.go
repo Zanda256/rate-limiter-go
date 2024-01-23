@@ -2,6 +2,7 @@ package ratelimiter
 
 import (
 	"github.com/Zanda256/rate-limiter-go/business/data/cache"
+	fixedwindowcounter "github.com/Zanda256/rate-limiter-go/business/web/v1/rate-limiter/FixedWindowCounter"
 	"github.com/Zanda256/rate-limiter-go/business/web/v1/rate-limiter/tokenbucket"
 	"github.com/Zanda256/rate-limiter-go/foundation/logger"
 )
@@ -14,6 +15,7 @@ var DefaultRateLimitCapacity = 5
 // Start with Leaky bucket
 type RateLimiterImpl struct {
 	*tokenbucket.BucketController
+	*fixedwindowcounter.WindowController
 }
 
 // type RateLimiter interface {
@@ -25,7 +27,7 @@ type Algo int
 const (
 	// LeakyBucket   = "LeakyBucket"
 	TokenBucket = "TokenBucket"
-	// FixedWindow   = "FixedWindow"
+	FixedWindow = "FixedWindow"
 	// SlidingLog    = "SlidingLog"
 	// SlidingWindow = "SlidingWindow"
 )
@@ -59,11 +61,28 @@ func NewRateLimiter(cfg RateLimiterConfig) *RateLimiterImpl {
 		}(),
 		Log: cfg.Log,
 	})
+	fxW := fixedwindowcounter.NewWindowController(fixedwindowcounter.WindowControllerConfig{
+		Store: cfg.KvStore,
+		Log:   cfg.Log,
+		MaxTokens: func() int {
+			if cfg.Tier.Capacity == 0 {
+				return DefaultRateLimitPeriod
+			}
+			return cfg.Tier.Capacity
+		}(),
+		WindowSize: func() int64 {
+			if cfg.Tier.Period == 0 {
+				return int64(DefaultRateLimitPeriod)
+			}
+			return int64(cfg.Tier.Period)
+		}(),
+	})
 	return &RateLimiterImpl{
 		BucketController: t,
+		WindowController: fxW,
 	}
 }
 
 func (rl *RateLimiterImpl) CheckUserLimit(userID string) bool {
-	return rl.Accept(userID)
+	return rl.WindowController.Accept(userID)
 }

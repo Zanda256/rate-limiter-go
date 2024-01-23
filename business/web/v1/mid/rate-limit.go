@@ -8,7 +8,7 @@ import (
 	"github.com/Zanda256/rate-limiter-go/foundation/web"
 )
 
-// take in limiter config
+// TODO: take in limiter config
 func RateLimit(rlmt *ratelimiter.RateLimiterImpl) web.Middleware {
 	f := func(h web.Handler) web.Handler {
 		m := func(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
