@@ -2,12 +2,15 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
 	redis "github.com/redis/go-redis/v9"
 )
+
+var ErrKeyNotFound = errors.New("key not found")
 
 type RedisCache struct {
 	client *redis.Client
