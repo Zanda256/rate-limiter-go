@@ -5,12 +5,14 @@ import (
 
 	"github.com/Zanda256/rate-limiter-go/business/data/cache"
 	"github.com/Zanda256/rate-limiter-go/business/web/v1/mid"
+	ratelimiter "github.com/Zanda256/rate-limiter-go/business/web/v1/rate-limiter"
 	"github.com/Zanda256/rate-limiter-go/foundation/logger"
 	"github.com/Zanda256/rate-limiter-go/foundation/web"
 )
 
 // APIMuxConfig contains all the mandatory systems required by handlers.
 type APIMuxConfig struct {
+	Tiers    map[string]ratelimiter.Tier
 	RedisKv  *cache.RedisCache
 	Build    string
 	Shutdown chan os.Signal
