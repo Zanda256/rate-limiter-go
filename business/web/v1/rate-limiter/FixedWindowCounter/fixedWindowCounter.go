@@ -114,8 +114,7 @@ func (wc *WindowController) Accept(userID string) bool {
 
 	nowUnix := time.Now().Unix()
 	currentWindow := nowUnix / wc.WindowSize
-	fmt.Printf("\nnowUnix: %+v\n", nowUnix)
-	fmt.Printf("\ncurrentWindow: %+v\n", currentWindow)
+
 	if currentWindow == theWindow.CreatedAt {
 		// still in current time window, check availability of requests
 		if theWindow.Requests >= theWindow.MaxRequests {

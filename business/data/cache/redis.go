@@ -34,14 +34,6 @@ func NewRedisCache(redisAddress string) *RedisCache {
 	}
 }
 
-// defer rdb.Close()
-
-// status, err := rdb.Ping(ctx).Result()
-//     if err != nil {
-//         log.Fatalln("Redis connection was refused")
-//     }
-//     fmt.Println(status)
-
 func (rc *RedisCache) StoreValue(ctx context.Context, key string, value any, ttl int) (any, error) {
 	err := rc.client.Set(ctx, key, value, time.Minute*time.Duration(ttl)).Err()
 	if err != nil {
@@ -57,6 +49,5 @@ func (rc *RedisCache) RetrieveValue(ctx context.Context, key string) (any, error
 	} else if err != nil {
 		return nil, err
 	}
-	fmt.Printf("\nbucket in RetrieveValue\nkey: %+v\nvalue: %+v", key, val)
 	return val, nil
 }

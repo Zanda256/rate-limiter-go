@@ -12,7 +12,7 @@ import (
 )
 
 type Config struct {
-	TierConfig map[string]*ratelimiter.Tier
+	TierConfig map[string]ratelimiter.Tier
 	KvStore    *cache.RedisCache
 	Log        *logger.Logger
 }

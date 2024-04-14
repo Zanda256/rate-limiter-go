@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/Zanda256/rate-limiter-go/app/services/rate-limiter/handlers"
 	"github.com/Zanda256/rate-limiter-go/business/data/cache"
 	v1 "github.com/Zanda256/rate-limiter-go/business/web/v1"
+	ratelimiter "github.com/Zanda256/rate-limiter-go/business/web/v1/rate-limiter"
 	"github.com/Zanda256/rate-limiter-go/foundation/logger"
 )
 
@@ -67,15 +69,27 @@ func run(ctx context.Context, log *logger.Logger) error {
 			IdleTimeout     time.Duration // `conf:"default:120s"`
 			ShutdownTimeout time.Duration // `conf:"default:20s,mask"`
 			APIHost         string        // `conf:"default:0.0.0.0:3000"`
+
 		}
 		RedisConf struct {
 			URL string
 		}
+		RateLimitConf map[string]ratelimiter.Tier
 	)
+
+	// map[string]ratelimiter.Tier{
+	// 	"basic": {
+	// 		Algo:     ratelimiter.TokenBucket,
+	// 		Period:   60,
+	// 		Capacity: 5,
+	// 	},
+	// },
+
 	cfg := struct {
 		Version
 		Web
 		RedisConf
+		RateLimitConf
 	}{
 		Version: Version{
 			Build: build,
@@ -88,6 +102,15 @@ func run(ctx context.Context, log *logger.Logger) error {
 			ShutdownTimeout: 20 * time.Second,
 			APIHost:         "0.0.0.0:3000",
 		},
+		RateLimitConf: func() RateLimitConf {
+			rlCfg := RateLimitConf{}
+			jsonStr := os.Getenv("TIER_CONFIG")
+			err := json.Unmarshal([]byte(jsonStr), &rlCfg)
+			if err != nil {
+				panic(err)
+			}
+			return rlCfg
+		}(),
 		RedisConf: func() RedisConf {
 			return RedisConf{
 				URL: os.Getenv("REDIS_URL"),
@@ -101,6 +124,7 @@ func run(ctx context.Context, log *logger.Logger) error {
 	redis := cache.NewRedisCache(cfg.RedisConf.URL)
 
 	cfgMux := v1.APIMuxConfig{
+		Tiers:    cfg.RateLimitConf,
 		RedisKv:  redis,
 		Build:    build,
 		Shutdown: shutdown,

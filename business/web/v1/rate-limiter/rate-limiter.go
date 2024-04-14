@@ -33,13 +33,26 @@ const (
 )
 
 type Tier struct {
-	Algo     string
-	Period   int
-	Capacity int
+	Algo     string `json:"algo"`
+	Period   int    `json:"period"`
+	Capacity int    `json:"capacity"`
 }
 
+// {
+// 	"basic":"{
+// 		"algo":"",
+// 		"period":"",
+// 		"capacity":""
+// 	}"
+// 	"premium":"{
+// 		"algo":"",
+// 		"period":"",
+// 		"capacity":""
+// 	}"
+// }
+
 type RateLimiterConfig struct {
-	Tier    *Tier
+	Tier    Tier
 	KvStore *cache.RedisCache
 	Log     *logger.Logger
 }
