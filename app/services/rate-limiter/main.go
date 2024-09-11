@@ -27,9 +27,6 @@ func main() {
 		Error: func(ctx context.Context, r logger.Record) {
 			log.Info(ctx, "******* SEND ALERT ******")
 		},
-		// Info: func(ctx context.Context, r logger.Record) {
-		// 	log.Info(ctx, "**  Important  **")
-		// },
 	}
 
 	//traceIDFunc := func(ctx context.Context) string {
